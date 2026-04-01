@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JobBoard API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #2563eb; }
+        .status {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success { background: #d1fae5; color: #065f46; }
+        .error { background: #fee2e2; color: #991b1b; }
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover { background: #1d4ed8; }
+        .info {
+            background: #dbeafe;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        pre {
+            background: #1f2937;
+            color: #10b981;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .link {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .link:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 JobBoard Backend Test</h1>
+        
+        <div class="info">
+            <strong>Backend Status:</strong> <span id="backend-status">Проверка...</span>
+        </div>
+
+        <h2>Тест API</h2>
+        <button onclick="testRegister()">1. Регистрация USER</button>
+        <button onclick="testLogin()">2. Вход</button>
+        <button onclick="testVacancies()">3. Список вакансий</button>
+        <button onclick="testResumes()">4. Список резюме</button>
+
+        <div id="result"></div>
+
+        <h2>Полезные ссылки</h2>
+        <ul>
+            <li><a class="link" href="http://localhost:8000/admin" target="_blank">Django Admin</a> (admin@jobboard.com / admin123)</li>
+            <li><a class="link" href="http://localhost:8000/api/vacancies/" target="_blank">API: Вакансии</a></li>
+            <li><a class="link" href="http://localhost:8000/api/resumes/" target="_blank">API: Резюме</a></li>
+        </ul>
+
+        <h2>Для запуска мобильного приложения:</h2>
+        <div class="info">
+            <ol>
+                <li>Скачай Node.js: <a class="link" href="https://nodejs.org" target="_blank">https://nodejs.org</a></li>
+                <li>Установи (выбери LTS версию)</li>
+                <li>Перезапусти компьютер</li>
+                <li>Открой терминал в папке <code>mobile</code></li>
+                <li>Выполни: <code>npm install</code></li>
+                <li>Затем: <code>npx expo start</code></li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8000/api';
+        let token = null;
+
+        // Проверка статуса backend
+        async function checkBackend() {
+            try {
+                const res = await fetch(`${API_URL}/vacancies/`);
+                document.getElementById('backend-status').innerHTML = 
+                    '<span style="color: green;">✓ Работает</span>';
+            } catch (e) {
+                document.getElementById('backend-status').innerHTML = 
+                    '<span style="color: red;">✗ Не доступен</span>';
+            }
+        }
+
+        async function testRegister() {
+            const email = `test${Date.now()}@test.com`;
+            const password = 'testpass123';
+            
+            try {
+                const res = await fetch(`${API_URL}/auth/register/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email,
+                        password,
+                        confirm_password: password,
+                        role: 'USER'
+                    })
+                });
+                const data = await res.json();
+                
+                if (res.ok) {
+                    token = data.access;
+                    showResult('success', 'Регистрация успешна!', data);
+                } else {
+                    showResult('error', 'Ошибка регистрации', data);
+                }
+            } catch (e) {
+                showResult('error', 'Ошибка сети', e.message);
+            }
+        }
+
+        async function testLogin() {
+            try {
+                const res = await fetch(`${API_URL}/auth/login/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'admin@jobboard.com',
+                        password: 'admin123'
+                    })
+                });
+                const data = await res.json();
+                
+                if (res.ok) {
+                    token = data.access;
+                    showResult('success', 'Вход выполнен!', data);
+                } else {
+                    showResult('error', 'Ошибка входа', data);
+                }
+            } catch (e) {
+                showResult('error', 'Ошибка сети', e.message);
+            }
+        }
+
+        async function testVacancies() {
+            try {
+                const res = await fetch(`${API_URL}/vacancies/`);
+                const data = await res.json();
+                showResult('success', `Найдено вакансий: ${data.results?.length || 0}`, data);
+            } catch (e) {
+                showResult('error', 'Ошибка загрузки вакансий', e.message);
+            }
+        }
+
+        async function testResumes() {
+            try {
+                const res = await fetch(`${API_URL}/resumes/`);
+                const data = await res.json();
+                showResult('success', `Найдено резюме: ${data.results?.length || 0}`, data);
+            } catch (e) {
+                showResult('error', 'Ошибка загрузки резюме', e.message);
+            }
+        }
+
+        function showResult(type, message, data) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <div class="status ${type}">
+                    ${message}
+                </div>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            `;
+        }
+
+        // Проверка при загрузке
+        checkBackend();
+    </script>
+</body>
+</html>

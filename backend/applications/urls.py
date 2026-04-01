@@ -1,0 +1,12 @@
+from django.urls import path
+from .views import (
+    ApplyToVacancyView, MyApplicationsView,
+    VacancyApplicationsView, ApplicationStatusUpdateView,
+)
+
+urlpatterns = [
+    path('vacancies/<uuid:vacancy_id>/apply/', ApplyToVacancyView.as_view(), name='apply-to-vacancy'),
+    path('my/applications/', MyApplicationsView.as_view(), name='my-applications'),
+    path('my/vacancies/<uuid:vacancy_id>/applications/', VacancyApplicationsView.as_view(), name='vacancy-applications'),
+    path('applications/<uuid:pk>/status/', ApplicationStatusUpdateView.as_view(), name='application-status'),
+]
