@@ -1,37 +1,29 @@
 import { Platform } from 'react-native';
 
-/**
- * API URL configuration for different environments.
+/*
+ * API URL configuration.
  *
- * Priority:
- *   1. EXPO_PUBLIC_API_URL env var (set via eas.json env per build profile)
- *   2. Auto-detect based on __DEV__ and Platform.OS
+ * Production builds use EXPO_PUBLIC_API_URL from eas.json env.
+ * Dev builds auto-detect localhost / 10.0.2.2.
  *
- * For production builds: set EXPO_PUBLIC_API_URL in eas.json → build → preview/production → env
- * For local dev: auto-detects localhost / 10.0.2.2 based on platform
+ * After deploying backend to Render, replace PRODUCTION_API_URL below
+ * with your actual Render URL (e.g. https://jobboard-backend.onrender.com/api).
  */
 
-// Production / staging URL — change this to your real server address
-const PRODUCTION_API_URL = 'https://your-server.com/api';
-
-function getDevApiUrl() {
-  // Android emulator uses 10.0.2.2 to reach host machine's localhost
-  // iOS simulator and web can use localhost directly
-  if (Platform.OS === 'android') {
-    return 'http://10.0.2.2:8000/api';
-  }
-  return 'http://localhost:8000/api';
-}
+const PRODUCTION_API_URL = 'https://jobboard-backend.onrender.com/api';
 
 function getApiUrl() {
-  // EAS build env variable takes top priority (EXPO_PUBLIC_ prefix required for Expo SDK 49+)
+  // EAS build env variable takes top priority
   if (process.env.EXPO_PUBLIC_API_URL) {
     return process.env.EXPO_PUBLIC_API_URL;
   }
 
-  // In dev mode, auto-detect the right local URL
+  // Dev mode only — local dev server
   if (__DEV__) {
-    return getDevApiUrl();
+    if (Platform.OS === 'android') {
+      return 'http://10.0.2.2:8000/api';
+    }
+    return 'http://localhost:8000/api';
   }
 
   // Production fallback
@@ -39,4 +31,3 @@ function getApiUrl() {
 }
 
 export const API_BASE_URL = getApiUrl();
-export default { API_BASE_URL };
