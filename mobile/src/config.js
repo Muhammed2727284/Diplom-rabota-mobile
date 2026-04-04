@@ -6,11 +6,10 @@ import { Platform } from 'react-native';
  * Production builds use EXPO_PUBLIC_API_URL from eas.json env.
  * Dev builds auto-detect localhost / 10.0.2.2.
  *
- * After deploying backend to Render, replace PRODUCTION_API_URL below
- * with your actual Render URL (e.g. https://jobboard-backend.onrender.com/api).
+ * Production builds use EXPO_PUBLIC_API_URL from eas.json env or the fallback below.
  */
 
-const PRODUCTION_API_URL = 'https://jobboard-backend.onrender.com/api';
+const PRODUCTION_API_URL = 'https://jobboard-backend-7uoy.onrender.com/api';
 
 function getApiUrl() {
   // EAS build env variable takes top priority
