@@ -80,7 +80,7 @@ const ProfileScreen = ({ navigation }) => {
           <InfoRow label="Телефон" value={profileData.phone} />
           <InfoRow label="Город" value={profileData.city} />
           <InfoRow label="Опыт (лет)" value={profileData.experience_years?.toString()} />
-          <InfoRow label="Ожидаемая ЗП" value={profileData.expected_salary ? `${profileData.expected_salary.toLocaleString()} ₸` : null} />
+          <InfoRow label="Ожидаемая ЗП" value={profileData.expected_salary ? `${profileData.expected_salary.toLocaleString()} сом` : null} />
           {profileData.about ? (
             <View style={styles.subSection}>
               <Text style={styles.subLabel}>О себе</Text>
